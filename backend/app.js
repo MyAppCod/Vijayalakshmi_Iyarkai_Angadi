@@ -12,9 +12,18 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(express.json());
+// Remove trailing slash from CLIENT_URL if present
+const clientURL = process.env.CLIENT_URL?.replace(/\/$/, ''); 
+
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true); // allow non-browser requests like Postman
+    if (origin === clientURL) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('CORS not allowed for this origin'), false);
+    }
+  },
   credentials: true
 }));
 
@@ -35,11 +44,12 @@ app.use('/api/cart', require('./routes/cartRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/content', require('./routes/contentRoutes'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
-app.use('/api/users',    require('./routes/userRoutes'));
-app.use('/api/finance',  require('./routes/financeRoutes'));
-app.use('/api/bills',    require('./routes/billRoutes'));
-app.use('/api/reports',  require('./routes/reportRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/finance', require('./routes/financeRoutes'));
+app.use('/api/bills', require('./routes/billRoutes'));
+app.use('/api/reports', require('./routes/reportRoutes'));
 app.use(require('compression')());
+
 // Test route
 app.get('/', (req, res) => {
   res.send('API Running...');
