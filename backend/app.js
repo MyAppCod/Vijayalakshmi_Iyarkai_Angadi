@@ -13,26 +13,40 @@ connectDB();
 
 // Middleware
 // Remove trailing slash from CLIENT_URL if present
-const clientURL = process.env.CLIENT_URL?.replace(/\/$/, ''); 
+const clientURL = process.env.CLIENT_URL?.replace(/\/$/, '');
 
+// CORS setup
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // allow non-browser requests like Postman
+    // allow non-browser requests like Postman
+    if (!origin) return callback(null, true); 
+    
     if (origin === clientURL) {
       return callback(null, true);
     } else {
       return callback(new Error('CORS not allowed for this origin'), false);
     }
   },
-  credentials: true
+  credentials: true,       // allow cookies/auth headers
+  optionsSuccessStatus: 200 // for legacy browsers preflight
+}));
+
+// Handle preflight requests for all routes
+app.options('*', cors({
+  origin: clientURL,
+  credentials: true,
+  optionsSuccessStatus: 200
 }));
 
 app.use(helmet());
 
 app.use(rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 15 * 60 * 1000, // 15 minutes
   max: 1000
 }));
+
+// Body parser
+app.use(express.json());
 
 // Routes
 app.use(express.static('frontend/build'));
