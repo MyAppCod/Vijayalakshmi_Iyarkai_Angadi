@@ -1,0 +1,90 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+body {
+  background-color: #f8fdf8;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #333;
+}
+
+h1, h2 {
+  color: #1b5e20;
+}
+
+/* Navbar link styles */
+.navbar .nav-link {
+  font-weight: 600;
+  color: #fff !important;
+  border-radius: 8px;
+  padding: 6px 12px;
+  transition: all 0.2s;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+
+.navbar .nav-link:hover {
+  color: #fff !important;
+  background-color: rgba(0, 0, 0, 0.18);
+}
+
+.navbar .nav-link.active {
+  color: #fff !important;
+  background-color: rgba(0, 0, 0, 0.22);
+  font-weight: 700;
+}
+
+/* Login / Register buttons in navbar */
+.navbar .btn-outline-light {
+  color: #fff !important;
+  border-color: #fff !important;
+  text-shadow: none;
+  font-weight: 600;
+}
+
+.navbar .btn-light {
+  color: #1b5e20 !important;
+  font-weight: 700;
+  text-shadow: none;
+}
+
+/* Smooth page transitions */
+.container {
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Better card hover globally */
+.card {
+  transition: box-shadow 0.2s;
+}
+
+/* Dropdown refinements */
+.dropdown-menu {
+  animation: fadeIn 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f8e9;
+  color: #1b5e20;
+}
+
+/* Better scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #a5d6a7; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #2e7d32; }
+
+/* Sticky top correction for page content */
+.sticky-top { top: 70px !important; }

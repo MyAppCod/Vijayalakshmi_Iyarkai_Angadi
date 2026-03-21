@@ -1,0 +1,17 @@
+/* Login/Register page specific styles */
+.auth-input.form-control {
+  padding: 10px;
+  font-size: 16px;
+}
+
+.auth-btn.btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.auth-btn.btn:hover {
+  background-color: #218838;
+  transform: scale(1.01);
+}
