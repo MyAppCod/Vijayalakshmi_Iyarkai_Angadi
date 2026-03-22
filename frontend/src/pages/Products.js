@@ -62,14 +62,9 @@ const AdminProducts = () => {
 
     try {
       const fd = new FormData();
-      fd.append('name', form.name || '');
-      fd.append('price', (form.price || 0).toString());
-      fd.append('oldPrice', (form.oldPrice || 0).toString());
-      fd.append('stock', (form.stock || 0).toString());
-      fd.append('unit', form.unit || 'count');
-      fd.append('category', form.category || '');
-      fd.append('description', form.description || '');
-      fd.append('message', form.message || '');
+      Object.entries(form).forEach(([key, value]) => {
+        if (key !== 'image') fd.append(key, value || '');
+      });
       if (imageFile) fd.append('image', imageFile);
 
       const config = { headers: { 'Content-Type': 'multipart/form-data' } };
@@ -93,17 +88,7 @@ const AdminProducts = () => {
   };
 
   const editProduct = (p) => {
-    setForm({
-      name: p.name || '',
-      price: p.price || '',
-      oldPrice: p.oldPrice || '',
-      category: p.category || '',
-      stock: p.stock || '',
-      unit: p.unit || 'count',
-      message: p.message || '',
-      description: p.description || '',
-      image: p.image || ''
-    });
+    setForm({ ...p, image: p.image || '' });
     setEditId(p._id);
     setImageFile(null);
     setShowForm(true);
@@ -152,7 +137,7 @@ const AdminProducts = () => {
           <h6 className="fw-semibold mb-3">{editId ? '✏️ Edit Product' : '➕ Add New Product'}</h6>
           <form onSubmit={handleSubmit}>
             <div className="row g-3">
-              {/* Product Name */}
+              {/* Name */}
               <div className="col-md-6">
                 <label className="form-label">Product Name</label>
                 <input required className="form-control"
@@ -161,7 +146,7 @@ const AdminProducts = () => {
                 />
               </div>
 
-              {/* Price & Old Price */}
+              {/* Price */}
               <div className="col-md-3">
                 <label className="form-label">Price</label>
                 <input type="number" required className="form-control"
@@ -210,8 +195,7 @@ const AdminProducts = () => {
               {/* Message & Description */}
               <div className="col-md-6">
                 <label className="form-label">Message (optional)</label>
-                <input className="form-control"
-                  placeholder="e.g. Fresh stock, Limited offer"
+                <input className="form-control" placeholder="e.g. Fresh stock"
                   value={form.message}
                   onChange={e => setForm({ ...form, message: e.target.value })}
                 />
@@ -230,9 +214,7 @@ const AdminProducts = () => {
                 <input type="file" className="form-control" accept="image/*" onChange={e => setImageFile(e.target.files[0])} />
                 {imageFile && <p className="small mt-1">{imageFile.name}</p>}
                 {!imageFile && editId && form.image && (
-                  <div className="mt-2">
-                    <img src={mediaUrl(form.image)} alt="preview" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
-                  </div>
+                  <img src={mediaUrl(form.image)} alt="preview" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', marginTop: '8px' }} />
                 )}
               </div>
             </div>
@@ -250,13 +232,10 @@ const AdminProducts = () => {
 
       {/* Search */}
       <div className="mb-3">
-        <div className="input-group" style={{ maxWidth: '320px' }}>
-          <span className="input-group-text bg-white border-end-0">🔍</span>
-          <input type="text" className="form-control border-start-0" placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)} style={{ boxShadow: 'none' }} />
-        </div>
+        <input type="text" className="form-control" placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)} style={{ maxWidth: '320px' }} />
       </div>
 
-      {/* Product Table */}
+      {/* Table */}
       {loading ? (
         <div className="text-center py-5"><div className="spinner-border text-success" role="status"></div></div>
       ) : filtered.length === 0 ? (
@@ -269,33 +248,23 @@ const AdminProducts = () => {
           <table className="table table-hover mb-0">
             <thead style={{ background: '#f1f8e9' }}>
               <tr>
-                <th className="py-3 ps-4 border-0" style={{ color: '#1b5e20' }}>Name</th>
-                <th className="py-3 border-0" style={{ color: '#1b5e20' }}>Category</th>
-                <th className="py-3 border-0" style={{ color: '#1b5e20' }}>Price</th>
-                <th className="py-3 border-0" style={{ color: '#1b5e20' }}>Stock</th>
-                <th className="py-3 border-0" style={{ color: '#1b5e20' }}>Actions</th>
+                <th className="py-3 ps-4 border-0">Name</th>
+                <th className="py-3 border-0">Category</th>
+                <th className="py-3 border-0">Price</th>
+                <th className="py-3 border-0">Stock</th>
+                <th className="py-3 border-0">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map(p => (
                 <tr key={p._id}>
-                  <td className="ps-4 py-3 align-middle">
-                    <div className="d-flex align-items-center gap-3">
-                      <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: '#f1f8e9', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-                        {p.image ? <img src={mediaUrl(p.image)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '1.2rem' }}>{p.category === 'rice' ? '🌾' : p.category === 'millets' ? '🌿' : p.category === 'dairy' ? '🥛' : '🛒'}</span>}
-                      </div>
-                      <div>
-                        <span className="fw-medium">{p.name}</span>
-                        {p.description && <p className="text-muted small mb-0" style={{ maxWidth: '180px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{p.description}</p>}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-3 align-middle"><span className="badge rounded-pill px-3" style={{ background: '#e8f5e9', color: '#2e7d32' }}>{p.category}</span></td>
-                  <td className="py-3 align-middle fw-semibold" style={{ color: '#2e7d32' }}>₹{p.price}</td>
-                  <td className="py-3 align-middle"><span className={`badge ${p.stock > 10 ? 'bg-success' : p.stock > 0 ? 'bg-warning text-dark' : 'bg-danger'}`}>{p.message || `${p.stock} ${p.unit}${p.stock > 1 ? 's' : ''}`}</span></td>
+                  <td className="ps-4 py-3 align-middle">{p.name}</td>
+                  <td className="py-3 align-middle">{p.category}</td>
+                  <td className="py-3 align-middle">₹{p.price}</td>
+                  <td className="py-3 align-middle">{p.stock}</td>
                   <td className="py-3 align-middle">
-                    <button className="btn btn-outline-primary btn-sm me-2" onClick={() => editProduct(p)} style={{ borderRadius: '6px' }}>Edit</button>
-                    <button className="btn btn-outline-danger btn-sm" onClick={() => deleteProduct(p._id, p.name)} style={{ borderRadius: '6px' }}>Delete</button>
+                    <button className="btn btn-outline-primary btn-sm me-2" onClick={() => editProduct(p)}>Edit</button>
+                    <button className="btn btn-outline-danger btn-sm" onClick={() => deleteProduct(p._id, p.name)}>Delete</button>
                   </td>
                 </tr>
               ))}
