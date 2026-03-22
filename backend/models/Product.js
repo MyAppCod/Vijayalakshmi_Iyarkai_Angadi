@@ -1,3 +1,4 @@
+// models/Product.js
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
@@ -11,26 +12,23 @@ const productSchema = new mongoose.Schema({
 
   price: { type: Number, required: true },
 
-  oldPrice: { type: Number }, // ✅ NEW
+  oldPrice: { type: Number, default: 0 },
 
   stock: { type: Number, default: 0 },
 
-  unit: {                    // ✅ NEW
+  unit: {                    
     type: String,
     enum: ['kg', 'liter', 'count'],
     default: 'count'
   },
 
-  message: { type: String }, // ✅ NEW
+  message: { type: String, default: '' },
 
-  description: String,
+  description: { type: String, default: '' },
 
-  image: String,
+  image: { type: String, default: '' },
 
-  isActive: {
-    type: Boolean,
-    default: true
-  }
+  isActive: { type: Boolean, default: true }
 
 }, { timestamps: true });
 
