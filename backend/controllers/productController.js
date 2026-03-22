@@ -1,14 +1,10 @@
 // controllers/productController.js
 const Product = require('../models/Product');
 
-// Create a product
+// Create Product
 exports.createProduct = async (req, res) => {
   try {
-    const { name, price, oldPrice, stock, unit, category, message, description } = req.body;
-
-    // Handle Cloudinary image
-    const image = req.file ? req.file.path : '';
-
+    const { name, price, oldPrice, stock, unit, category, description, message } = req.body;
     const product = new Product({
       name,
       price,
@@ -16,16 +12,16 @@ exports.createProduct = async (req, res) => {
       stock: stock || 0,
       unit: unit || 'count',
       category,
-      message,
       description,
-      image
+      message,
+      image: req.file ? req.file.path : ''
     });
 
     await product.save();
     res.status(201).json(product);
   } catch (err) {
     console.error('Create product error:', err);
-    res.status(500).json({ msg: 'Server error creating product' });
+    res.status(500).json({ msg: 'Failed to create product' });
   }
 };
 
@@ -36,11 +32,11 @@ exports.getProducts = async (req, res) => {
     res.json(products);
   } catch (err) {
     console.error('Get products error:', err);
-    res.status(500).json({ msg: 'Server error fetching products' });
+    res.status(500).json({ msg: 'Failed to fetch products' });
   }
 };
 
-// Get product by ID
+// Get single product
 exports.getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -48,16 +44,15 @@ exports.getProductById = async (req, res) => {
     res.json(product);
   } catch (err) {
     console.error('Get product by ID error:', err);
-    res.status(500).json({ msg: 'Server error fetching product' });
+    res.status(500).json({ msg: 'Failed to fetch product' });
   }
 };
 
 // Update product
 exports.updateProduct = async (req, res) => {
   try {
-    const { name, price, oldPrice, stock, unit, category, message, description } = req.body;
+    const { name, price, oldPrice, stock, unit, category, description, message, removeImage } = req.body;
 
-    // Only update image if new file uploaded
     const updateData = {
       name,
       price,
@@ -65,29 +60,35 @@ exports.updateProduct = async (req, res) => {
       stock: stock || 0,
       unit: unit || 'count',
       category,
-      message,
-      description
+      description,
+      message
     };
-    if (req.file) updateData.image = req.file.path;
 
-    const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
-    if (!product) return res.status(404).json({ msg: 'Product not found' });
+    // Handle image
+    if (removeImage === 'true') {
+      updateData.image = '';
+    } else if (req.file) {
+      updateData.image = req.file.path;
+    }
 
-    res.json(product);
+    const updated = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    if (!updated) return res.status(404).json({ msg: 'Product not found' });
+
+    res.json(updated);
   } catch (err) {
     console.error('Update product error:', err);
-    res.status(500).json({ msg: 'Server error updating product' });
+    res.status(500).json({ msg: 'Failed to update product' });
   }
 };
 
 // Delete product
 exports.deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
-    if (!product) return res.status(404).json({ msg: 'Product not found' });
-    res.json({ msg: 'Product deleted successfully' });
+    const deleted = await Product.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ msg: 'Product not found' });
+    res.json({ msg: 'Product deleted' });
   } catch (err) {
     console.error('Delete product error:', err);
-    res.status(500).json({ msg: 'Server error deleting product' });
+    res.status(500).json({ msg: 'Failed to delete product' });
   }
 };
