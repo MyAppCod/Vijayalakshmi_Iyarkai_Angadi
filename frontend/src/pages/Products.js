@@ -51,7 +51,7 @@ const AdminProducts = () => {
         fd.append('category', form.category);
         fd.append('description', form.description);
         if (imageFile) fd.append('image', imageFile);
-        await API.post('/products', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await API.post('/products', fd);
         showToast('Product added successfully');
       }
       resetForm();
