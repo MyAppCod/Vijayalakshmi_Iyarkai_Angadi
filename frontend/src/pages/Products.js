@@ -12,7 +12,7 @@ const emptyForm = {
   oldPrice: '',
   category: '',
   stock: '',
-  unit: 'count',
+  unit: '',
   message: '',
   description: ''
 };
