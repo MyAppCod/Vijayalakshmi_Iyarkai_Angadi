@@ -33,7 +33,7 @@ app.use(cors({
 }));
 
 // Handle preflight OPTIONS requests globally
-app.options('*', cors({
+app.options('/*', cors({
   origin: clientURL,
   credentials: true,
   optionsSuccessStatus: 200
