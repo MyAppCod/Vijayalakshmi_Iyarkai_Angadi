@@ -6,14 +6,7 @@ import Toast from '../components/Toast';
 
 const CATEGORIES = ['rice', 'millets', 'dairy', 'others'];
 
-const emptyForm = {
-  name: '',
-  price: '',
-  oldPrice: '',
-  category: '',
-  stock: '',
-  description: ''
-};
+const emptyForm = { name: '', price: '', category: '', stock: '', description: '' };
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
@@ -26,6 +19,7 @@ const AdminProducts = () => {
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
 
+  // ✅ NEW STATE FOR READ MORE
   const [expandedId, setExpandedId] = useState(null);
 
   const showToast = (message, type = 'success') => {
@@ -47,19 +41,13 @@ const AdminProducts = () => {
     setSaving(true);
     try {
       if (editId) {
-        const payload = {
-          ...form,
-          price: Number(form.price),
-          oldPrice: Number(form.oldPrice),
-          stock: Number(form.stock)
-        };
+        const payload = { ...form, price: Number(form.price), stock: Number(form.stock) };
         await API.put(`/products/${editId}`, payload);
         showToast('Product updated successfully');
       } else {
         const fd = new FormData();
         fd.append('name', form.name);
         fd.append('price', Number(form.price));
-        fd.append('oldPrice', Number(form.oldPrice));
         fd.append('stock', Number(form.stock));
         fd.append('category', form.category);
         fd.append('description', form.description);
@@ -88,7 +76,6 @@ const AdminProducts = () => {
     setForm({
       name: p.name,
       price: p.price,
-      oldPrice: p.oldPrice || '',
       category: p.category,
       stock: p.stock,
       description: p.description || ''
@@ -99,7 +86,7 @@ const AdminProducts = () => {
   };
 
   const deleteProduct = async (id, name) => {
-    if (!window.confirm(`Delete "${name}"?`)) return;
+    if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
     try {
       await API.delete(`/products/${id}`);
       showToast(`${name} deleted`);
@@ -119,50 +106,74 @@ const AdminProducts = () => {
       {toast && <Toast message={toast.message} type={toast.type} />}
 
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h4>Products</h4>
-        <button className="btn btn-success" onClick={() => setShowForm(!showForm)}>
-          {showForm ? 'Cancel' : '+ Add Product'}
+        <div>
+          <h4 className="fw-bold mb-0">Products</h4>
+          <p className="text-muted small mb-0">{products.length} total products</p>
+        </div>
+        <button
+          className="btn btn-success px-3"
+          onClick={() => { resetForm(); setShowForm(!showForm); }}
+          style={{ borderRadius: '10px' }}
+        >
+          {showForm ? '✕ Cancel' : '+ Add Product'}
         </button>
       </div>
 
+      {/* FORM */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="mb-4">
-          <input className="form-control mb-2" placeholder="Name"
-            value={form.name}
-            onChange={e => setForm({ ...form, name: e.target.value })} />
+        <div className="card border-0 shadow-sm p-4 mb-4" style={{ borderRadius: '16px', borderLeft: '4px solid #2e7d32' }}>
+          <h6 className="fw-semibold mb-3">{editId ? '✏️ Edit Product' : '➕ Add New Product'}</h6>
+          <form onSubmit={handleSubmit}>
+            <div className="row g-3">
+              <div className="col-md-6">
+                <input required className="form-control" placeholder="Product Name"
+                  value={form.name}
+                  onChange={e => setForm({ ...form, name: e.target.value })} />
+              </div>
 
-          <input type="number" className="form-control mb-2" placeholder="Price"
-            value={form.price}
-            onChange={e => setForm({ ...form, price: e.target.value })} />
+              <div className="col-md-3">
+                <input required type="number" className="form-control" placeholder="Price"
+                  value={form.price}
+                  onChange={e => setForm({ ...form, price: e.target.value })} />
+              </div>
 
-          <input type="number" className="form-control mb-2" placeholder="Old Price"
-            value={form.oldPrice}
-            onChange={e => setForm({ ...form, oldPrice: e.target.value })} />
+              <div className="col-md-3">
+                <input required type="number" className="form-control" placeholder="Stock"
+                  value={form.stock}
+                  onChange={e => setForm({ ...form, stock: e.target.value })} />
+              </div>
 
-          <input type="number" className="form-control mb-2" placeholder="Stock"
-            value={form.stock}
-            onChange={e => setForm({ ...form, stock: e.target.value })} />
+              <div className="col-md-4">
+                <select className="form-select"
+                  value={form.category}
+                  onChange={e => setForm({ ...form, category: e.target.value })}>
+                  <option value="">Select category</option>
+                  {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                </select>
+              </div>
 
-          <select className="form-select mb-2"
-            value={form.category}
-            onChange={e => setForm({ ...form, category: e.target.value })}>
-            <option value="">Select</option>
-            {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-          </select>
+              <div className="col-md-5">
+                <input className="form-control" placeholder="Description"
+                  value={form.description}
+                  onChange={e => setForm({ ...form, description: e.target.value })} />
+              </div>
 
-          <input className="form-control mb-2" placeholder="Description"
-            value={form.description}
-            onChange={e => setForm({ ...form, description: e.target.value })} />
+              {!editId && (
+                <div className="col-md-3">
+                  <input type="file" className="form-control"
+                    onChange={e => setImageFile(e.target.files[0])} />
+                </div>
+              )}
+            </div>
 
-          <input type="file" className="form-control mb-2"
-            onChange={e => setImageFile(e.target.files[0])} />
-
-          <button className="btn btn-success">
-            {editId ? 'Update' : 'Add'}
-          </button>
-        </form>
+            <button className="btn btn-success mt-3">
+              {editId ? 'Update' : 'Add Product'}
+            </button>
+          </form>
+        </div>
       )}
 
+      {/* TABLE */}
       <table className="table">
         <tbody>
           {filtered.map(p => (
@@ -174,29 +185,34 @@ const AdminProducts = () => {
                   <div>
                     <b>{p.name}</b>
 
-                    {/* DESCRIPTION */}
+                    {/* ✅ READ MORE FEATURE */}
                     {p.description && (
-                      <div style={{ maxWidth: '200px' }}>
+                      <div style={{ maxWidth: '180px' }}>
                         <p
                           className="text-muted small mb-0"
                           style={{
-                            maxHeight: expandedId === p._id ? '200px' : '20px',
-                            overflow: 'hidden',
-                            transition: '0.3s'
+                            display: '-webkit-box',
+                            WebkitLineClamp: expandedId === p._id ? 'unset' : 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
                           }}
                         >
                           {p.description}
                         </p>
 
                         {p.description.length > 40 && (
-                          <button
-                            className="btn btn-link p-0 small"
+                          <span
+                            style={{
+                              color: '#2e7d32',
+                              cursor: 'pointer',
+                              fontSize: '12px'
+                            }}
                             onClick={() =>
                               setExpandedId(expandedId === p._id ? null : p._id)
                             }
                           >
                             {expandedId === p._id ? 'Show less' : 'Read more'}
-                          </button>
+                          </span>
                         )}
                       </div>
                     )}
@@ -205,25 +221,7 @@ const AdminProducts = () => {
               </td>
 
               <td>{p.category}</td>
-
-              {/* PRICE UI */}
-              <td>
-                {p.oldPrice && p.oldPrice > p.price && (
-                  <span style={{ textDecoration: 'line-through', color: '#888', marginRight: 6 }}>
-                    ₹{p.oldPrice}
-                  </span>
-                )}
-                <span style={{ color: '#2e7d32', fontWeight: 'bold' }}>
-                  ₹{p.price}
-                </span>
-
-                {p.oldPrice && p.oldPrice > p.price && (
-                  <span style={{ color: 'red', fontSize: 12, marginLeft: 6 }}>
-                    {Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100)}% OFF
-                  </span>
-                )}
-              </td>
-
+              <td>₹{p.price}</td>
               <td>{p.stock}</td>
 
               <td>
