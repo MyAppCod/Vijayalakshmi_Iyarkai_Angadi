@@ -9,54 +9,43 @@ require('dotenv').config();
 
 const app = express();
 
-// ---------------------
-// Database Connection
-// ---------------------
+// DB
 connectDB();
 
-// ---------------------
-// Middleware
-// ---------------------
+// CORS
+const allowedOrigins = [
+  'https://vijayalakshmi-iyarkai-angadi.vercel.app',
+  'http://localhost:3000'
+];
 
-// Remove trailing slash from CLIENT_URL
-const clientURL = process.env.CLIENT_URL?.replace(/\/$/, '');
-
-// CORS setup
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // allow Postman or server requests
-    if (origin === clientURL) return callback(null, true);
-    return callback(new Error('CORS not allowed for this origin'), false);
+    if (!origin) return callback(null, true);
+
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.includes('vercel.app')
+    ) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('CORS not allowed'), false);
+    }
   },
-  credentials: true,
-  optionsSuccessStatus: 200 // for legacy browsers preflight
+  credentials: true
 }));
 
-// Handle preflight OPTIONS requests globally
-app.options('/*', cors({
-  origin: clientURL,
-  credentials: true,
-  optionsSuccessStatus: 200
-}));
-
-// Security headers
+// Middleware
 app.use(helmet());
 
-// Rate limiting
 app.use(rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 1000
 }));
 
-// Body parser
 app.use(express.json());
-
-// Compression
 app.use(compression());
 
-// ---------------------
 // Routes
-// ---------------------
 app.use(express.static('frontend/build'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -71,9 +60,7 @@ app.use('/api/finance', require('./routes/financeRoutes'));
 app.use('/api/bills', require('./routes/billRoutes'));
 app.use('/api/reports', require('./routes/reportRoutes'));
 
-// ---------------------
-// Test route
-// ---------------------
+// Test
 app.get('/', (req, res) => {
   res.send('API Running...');
 });
