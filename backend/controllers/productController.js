@@ -1,98 +1,93 @@
+// controllers/productsController.js
 const Product = require('../models/Product');
 
-// ➕ Add Product (Admin / Manager)
 exports.createProduct = async (req, res) => {
   try {
-    // ✅ Handle image
-    if (req.file) {
-      req.body.image = req.file.path.startsWith('http')
-        ? req.file.path
-        : `/uploads/${req.file.filename}`;
-    }
+    const {
+      name,
+      price,
+      oldPrice = 0,
+      stock = 0,
+      unit = 'count',
+      category,
+      description = '',
+      message = ''
+    } = req.body;
 
-    // ✅ FIX: Convert types properly (VERY IMPORTANT)
-    const productData = {
-      name: req.body.name,
-      category: req.body.category,
-      price: Number(req.body.price),
-      oldPrice: req.body.oldPrice ? Number(req.body.oldPrice) : undefined,
-      stock: Number(req.body.stock),
-      unit: req.body.unit || 'count',
-      message: req.body.message || '',
-      description: req.body.description || '',
-      image: req.body.image
-    };
+    const image = req.file ? req.file.filename : '';
 
-    const product = new Product(productData);
-    const savedProduct = await product.save();
+    const product = await Product.create({
+      name,
+      price,
+      oldPrice,
+      stock,
+      unit,
+      category,
+      description,
+      message,
+      image
+    });
 
-    res.json(savedProduct);
-
+    res.status(201).json(product);
   } catch (err) {
-    console.error("CREATE PRODUCT ERROR:", err); // ✅ Debug log
-    res.status(500).json({ msg: err.message });
+    console.error('Create Product Error:', err);
+    res.status(500).json({ msg: 'Internal server error' });
   }
 };
 
-// 📥 Get All Products (Public)
-exports.getProducts = async (req, res) => {
-  try {
-    const { category } = req.query;
-
-    let filter = { isActive: true };
-
-    if (category) {
-      filter.category = category;
-    }
-
-    const products = await Product.find(filter);
-    res.json(products);
-
-  } catch (err) {
-    res.status(500).json({ msg: err.message });
-  }
-};
-
-// 📄 Get Single Product
-exports.getProductById = async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    res.json(product);
-  } catch {
-    res.status(404).json({ msg: 'Product not found' });
-  }
-};
-
-// ✏️ Update Product
 exports.updateProduct = async (req, res) => {
   try {
-    const updateData = {
-      ...req.body,
-      price: Number(req.body.price),
-      oldPrice: req.body.oldPrice ? Number(req.body.oldPrice) : undefined,
-      stock: Number(req.body.stock)
-    };
+    const { id } = req.params;
+    const product = await Product.findById(id);
+    if (!product) return res.status(404).json({ msg: 'Product not found' });
 
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true }
-    );
+    const {
+      name,
+      price,
+      oldPrice = 0,
+      stock = 0,
+      unit = 'count',
+      category,
+      description = '',
+      message = ''
+    } = req.body;
 
-    res.json(product);
+    if (req.file) product.image = req.file.filename;
+    product.name = name;
+    product.price = price;
+    product.oldPrice = oldPrice;
+    product.stock = stock;
+    product.unit = unit;
+    product.category = category;
+    product.description = description;
+    product.message = message;
 
+    await product.save();
+    res.status(200).json(product);
   } catch (err) {
-    console.error("UPDATE PRODUCT ERROR:", err);
-    res.status(500).json({ msg: err.message });
+    console.error('Update Product Error:', err);
+    res.status(500).json({ msg: 'Internal server error' });
   }
 };
 
-// ❌ Delete Product
 exports.deleteProduct = async (req, res) => {
   try {
-    await Product.findByIdAndDelete(req.params.id);
-    res.json({ msg: 'Product deleted' });
+    const { id } = req.params;
+    const product = await Product.findByIdAndDelete(id);
+    if (!product) return res.status(404).json({ msg: 'Product not found' });
+    res.status(200).json({ msg: 'Product deleted' });
   } catch (err) {
-    res.status(500).json({ msg: err.message });
+    console.error('Delete Product Error:', err);
+    res.status(500).json({ msg: 'Internal server error' });
+  }
+};
+
+exports.getProducts = async (req, res) => {
+  try {
+    const products = await Product.find().sort({ createdAt: -1 });
+    res.status(200).json(products);
+  } catch (err) {
+    console.error('Get Products Error:', err);
+    res.status(500).json({ msg: 'Internal server error' });
   }
 };
