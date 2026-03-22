@@ -1,3 +1,4 @@
+// File: src/pages/Dashboard.js
 import { useEffect, useState } from 'react';
 import API from '../services/api';
 import AdminLayout from '../layouts/AdminLayout';
@@ -13,21 +14,36 @@ const STAT_CARDS = [
 ];
 
 const Dashboard = () => {
-  const [stats, setStats] = useState({ products: 0, orders: 0, users: 0, revenue: 0, chartData: [] });
+  const [stats, setStats] = useState({
+    products: 0,
+    orders: 0,
+    users: 0,
+    revenue: 0,
+    chartData: []
+  });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
-    API.get('/dashboard')
-      .then(res => setStats({
-        products: res.data.products || 0,
-        orders: res.data.orders || 0,
-        users: res.data.users || 0,
-        revenue: res.data.revenue || 0,
-        chartData: res.data.chartData || []
-      }))
-      .catch(err => console.log(err))
-      .finally(() => setLoading(false));
-  }, []);
+  const fetchDashboard = async () => {
+    try {
+      const res = await API.get('/dashboard');
+      const data = res.data || {};
+      setStats({
+        products: data.products || 0,
+        orders: data.orders || 0,
+        users: data.users || 0,
+        revenue: data.revenue || 0,
+        chartData: Array.isArray(data.chartData) ? data.chartData : []
+      });
+    } catch (err) {
+      console.error('Dashboard fetch error:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchDashboard(); }, []);
 
   return (
     <AdminLayout>
@@ -40,7 +56,7 @@ const Dashboard = () => {
 
       {loading ? (
         <div className="row g-3">
-          {[1,2,3,4].map(i => (
+          {[1, 2, 3, 4].map(i => (
             <div key={i} className="col-sm-6 col-xl-3">
               <div className="card border-0 shadow-sm p-4">
                 <div className="placeholder-glow">
@@ -50,6 +66,11 @@ const Dashboard = () => {
               </div>
             </div>
           ))}
+        </div>
+      ) : error ? (
+        <div className="text-center py-5">
+          <div style={{ fontSize: '3rem' }}>⚠️</div>
+          <p className="text-muted mt-3">Failed to load dashboard data. Please try again later.</p>
         </div>
       ) : (
         <>
@@ -62,7 +83,7 @@ const Dashboard = () => {
                     <div>
                       <p className="text-muted small mb-1 fw-medium">{card.label}</p>
                       <h3 className="fw-bold mb-0" style={{ color: card.color }}>
-                        {card.prefix}{card.key === 'revenue' ? stats[card.key].toLocaleString('en-IN') : stats[card.key]}
+                        {card.prefix}{card.key === 'revenue' ? Number(stats[card.key]).toLocaleString('en-IN') : stats[card.key]}
                       </h3>
                     </div>
                     <div style={{ fontSize: '2rem', opacity: 0.8 }}>{card.icon}</div>
