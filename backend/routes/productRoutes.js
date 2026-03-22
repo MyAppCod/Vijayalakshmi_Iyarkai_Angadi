@@ -19,7 +19,7 @@ router.get('/:id', getProductById);
 
 // Admin / Manager
 router.post('/', auth, role('admin', 'manager'), upload.single('image'), createProduct);
-router.put('/:id', auth, role('admin', 'manager'), updateProduct);
+router.put('/:id', auth, role('admin', 'manager'), upload.single('image'), updateProduct);
 router.delete('/:id', auth, role('admin'), deleteProduct);
 
 module.exports = router;
