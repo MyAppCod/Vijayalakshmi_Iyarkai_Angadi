@@ -1,3 +1,4 @@
+// File: src/pages/product.js
 import { useEffect, useState } from 'react';
 import API from '../services/api';
 import { mediaUrl } from '../services/media';
@@ -12,9 +13,10 @@ const emptyForm = {
   oldPrice: '',
   category: '',
   stock: '',
-  unit: '',
+  unit: 'count',
   message: '',
-  description: ''
+  description: '',
+  image: ''
 };
 
 const AdminProducts = () => {
@@ -42,19 +44,29 @@ const AdminProducts = () => {
 
   useEffect(() => { fetchProducts(); }, []);
 
+  const resetForm = () => {
+    setForm(emptyForm);
+    setImageFile(null);
+    setEditId(null);
+    setShowForm(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
       if (editId) {
-        // PUT — no multer on this route, send JSON
-        const payload = { ...form, price: Number(form.price), stock: Number(form.stock) };
+        const payload = {
+          ...form,
+          price: Number(form.price),
+          oldPrice: Number(form.oldPrice || 0),
+          stock: Number(form.stock)
+        };
         await API.put(`/products/${editId}`, payload);
         showToast('Product updated successfully');
       } else {
-        // POST — multer expects multipart/form-data
         const fd = new FormData();
-        fd.append('name', form.name)
+        fd.append('name', form.name);
         fd.append('price', Number(form.price));
         fd.append('oldPrice', Number(form.oldPrice || 0));
         fd.append('stock', Number(form.stock));
@@ -75,16 +87,20 @@ const AdminProducts = () => {
     }
   };
 
-  const resetForm = () => {
-    setForm(emptyForm);
-    setImageFile(null);
-    setEditId(null);
-    setShowForm(false);
-  };
-
   const editProduct = (p) => {
-    setForm({ name: p.name, price: p.price, category: p.category, stock: p.stock, description: p.description || '' });
+    setForm({ 
+      name: p.name,
+      price: p.price,
+      oldPrice: p.oldPrice || '',
+      category: p.category,
+      stock: p.stock,
+      unit: p.unit || 'count',
+      message: p.message || '',
+      description: p.description || '',
+      image: p.image || ''
+    });
     setEditId(p._id);
+    setImageFile(null);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -100,7 +116,10 @@ const AdminProducts = () => {
     }
   };
 
-  const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase()));
+  const filtered = products.filter(p =>
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
+    p.category.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <AdminLayout>
@@ -125,9 +144,7 @@ const AdminProducts = () => {
         <div className="card border-0 shadow-sm p-4 mb-4" style={{ borderRadius: '16px', borderLeft: '4px solid #2e7d32' }}>
           <h6 className="fw-semibold mb-3">{editId ? '✏️ Edit Product' : '➕ Add New Product'}</h6>
           <form onSubmit={handleSubmit}>
-
             <div className="row g-3">
-
               <div className="col-md-6">
                 <label className="form-label">Product Name</label>
                 <input required className="form-control"
@@ -200,7 +217,18 @@ const AdminProducts = () => {
                 />
               </div>
 
+              <div className="col-md-6">
+                <label className="form-label">Product Image</label>
+                <input type="file" className="form-control" accept="image/*" onChange={e => setImageFile(e.target.files[0])} />
+                {imageFile && <p className="small mt-1">{imageFile.name}</p>}
+                {!imageFile && editId && form.image && (
+                  <div className="mt-2">
+                    <img src={mediaUrl(form.image)} alt="preview" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
+                  </div>
+                )}
+              </div>
             </div>
+
             <div className="mt-3 d-flex gap-2">
               <button type="submit" className="btn btn-success px-4" disabled={saving} style={{ borderRadius: '8px' }}>
                 {saving ? <><span className="spinner-border spinner-border-sm me-2"></span>Saving...</> : (editId ? 'Update Product' : 'Add Product')}
@@ -264,7 +292,7 @@ const AdminProducts = () => {
                   <td className="py-3 align-middle fw-semibold" style={{ color: '#2e7d32' }}>₹{p.price}</td>
                   <td className="py-3 align-middle">
                     <span className={`badge ${p.stock > 10 ? 'bg-success' : p.stock > 0 ? 'bg-warning text-dark' : 'bg-danger'}`}>
-                      {p.stock} units
+                      {p.message || `${p.stock} ${p.unit}${p.stock > 1 ? 's' : ''}`}
                     </span>
                   </td>
                   <td className="py-3 align-middle">
