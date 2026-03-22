@@ -13,7 +13,7 @@ const emptyForm = {
   oldPrice: '',
   category: '',
   stock: '',
-  unit: 'count',
+  unit: '',
   message: '',
   description: '',
   image: ''
@@ -54,8 +54,10 @@ const AdminProducts = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
+
     try {
       if (editId) {
+        // Update product (JSON payload)
         const payload = {
           ...form,
           price: Number(form.price),
@@ -65,23 +67,47 @@ const AdminProducts = () => {
         await API.put(`/products/${editId}`, payload);
         showToast('Product updated successfully');
       } else {
-        const fd = new FormData();
-        fd.append('name', form.name);
-        fd.append('price', Number(form.price));
-        fd.append('oldPrice', Number(form.oldPrice || 0));
-        fd.append('stock', Number(form.stock));
-        fd.append('unit', form.unit);
-        fd.append('category', form.category);
-        fd.append('description', form.description);
-        fd.append('message', form.message);
-        if (imageFile) fd.append('image', imageFile);
-        await API.post('/products', fd);
-        showToast('Product added successfully');
+        // Add product (FormData for file)
+        let response;
+        if (imageFile) {
+          const fd = new FormData();
+          fd.append('name', form.name);
+          fd.append('price', Number(form.price));
+          fd.append('oldPrice', Number(form.oldPrice || 0));
+          fd.append('stock', Number(form.stock));
+          fd.append('unit', form.unit);
+          fd.append('category', form.category);
+          fd.append('description', form.description);
+          fd.append('message', form.message);
+          fd.append('image', imageFile); // only if selected
+
+          response = await API.post('/products', fd, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+        } else {
+          // Send JSON if no image selected
+          const payload = {
+            ...form,
+            price: Number(form.price),
+            oldPrice: Number(form.oldPrice || 0),
+            stock: Number(form.stock)
+          };
+          response = await API.post('/products', payload);
+        }
+
+        if (response?.status === 200 || response?.status === 201) {
+          showToast('Product added successfully');
+        }
       }
+
       resetForm();
       fetchProducts();
     } catch (err) {
-      showToast(err.response?.data?.msg || 'Operation failed', 'danger');
+      console.error('Product submit error:', err); // Debug log
+      showToast(
+        err.response?.data?.msg || err.message || 'Operation failed',
+        'danger'
+      );
     } finally {
       setSaving(false);
     }
@@ -112,6 +138,7 @@ const AdminProducts = () => {
       showToast(`${name} deleted`);
       fetchProducts();
     } catch (err) {
+      console.error('Delete product error:', err);
       showToast('Failed to delete product', 'danger');
     }
   };
@@ -125,6 +152,7 @@ const AdminProducts = () => {
     <AdminLayout>
       {toast && <Toast message={toast.message} type={toast.type} />}
 
+      {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h4 className="fw-bold mb-0">Products</h4>
@@ -145,6 +173,7 @@ const AdminProducts = () => {
           <h6 className="fw-semibold mb-3">{editId ? '✏️ Edit Product' : '➕ Add New Product'}</h6>
           <form onSubmit={handleSubmit}>
             <div className="row g-3">
+              {/* Name */}
               <div className="col-md-6">
                 <label className="form-label">Product Name</label>
                 <input required className="form-control"
@@ -153,6 +182,7 @@ const AdminProducts = () => {
                 />
               </div>
 
+              {/* Price & Old Price */}
               <div className="col-md-3">
                 <label className="form-label">Price</label>
                 <input type="number" required className="form-control"
@@ -160,7 +190,6 @@ const AdminProducts = () => {
                   onChange={e => setForm({ ...form, price: e.target.value })}
                 />
               </div>
-
               <div className="col-md-3">
                 <label className="form-label">Old Price</label>
                 <input type="number" className="form-control"
@@ -169,6 +198,7 @@ const AdminProducts = () => {
                 />
               </div>
 
+              {/* Category, Stock, Unit */}
               <div className="col-md-4">
                 <label className="form-label">Category</label>
                 <select className="form-select"
@@ -179,7 +209,6 @@ const AdminProducts = () => {
                   {CATEGORIES.map(c => <option key={c}>{c}</option>)}
                 </select>
               </div>
-
               <div className="col-md-4">
                 <label className="form-label">Stock</label>
                 <input type="number" className="form-control"
@@ -187,7 +216,6 @@ const AdminProducts = () => {
                   onChange={e => setForm({ ...form, stock: e.target.value })}
                 />
               </div>
-
               <div className="col-md-4">
                 <label className="form-label">Unit</label>
                 <select className="form-select"
@@ -200,6 +228,7 @@ const AdminProducts = () => {
                 </select>
               </div>
 
+              {/* Message & Description */}
               <div className="col-md-6">
                 <label className="form-label">Message (optional)</label>
                 <input className="form-control"
@@ -208,7 +237,6 @@ const AdminProducts = () => {
                   onChange={e => setForm({ ...form, message: e.target.value })}
                 />
               </div>
-
               <div className="col-md-6">
                 <label className="form-label">Description</label>
                 <input className="form-control"
@@ -217,6 +245,7 @@ const AdminProducts = () => {
                 />
               </div>
 
+              {/* Image */}
               <div className="col-md-6">
                 <label className="form-label">Product Image</label>
                 <input type="file" className="form-control" accept="image/*" onChange={e => setImageFile(e.target.files[0])} />
@@ -229,6 +258,7 @@ const AdminProducts = () => {
               </div>
             </div>
 
+            {/* Buttons */}
             <div className="mt-3 d-flex gap-2">
               <button type="submit" className="btn btn-success px-4" disabled={saving} style={{ borderRadius: '8px' }}>
                 {saving ? <><span className="spinner-border spinner-border-sm me-2"></span>Saving...</> : (editId ? 'Update Product' : 'Add Product')}
@@ -247,7 +277,7 @@ const AdminProducts = () => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Product Table */}
       {loading ? (
         <div className="text-center py-5">
           <div className="spinner-border text-success" role="status"></div>
