@@ -1,21 +1,15 @@
-// controllers/dashboardController.js
-const Product = require('../models/Product');
-const Order = require('../models/Order'); // assuming you have an Order model
-const User = require('../models/User');   // assuming you have a User model
-
 exports.getDashboard = async (req, res) => {
   try {
     const productsCount = await Product.countDocuments();
     const ordersCount = await Order.countDocuments();
     const usersCount = await User.countDocuments();
 
-    // Monthly revenue aggregation
     const orders = await Order.aggregate([
       { $match: { status: 'completed' } },
       {
         $group: {
           _id: { $month: '$createdAt' },
-          revenue: { $sum: '$totalPrice' }
+          revenue: { $sum: '$totalPrice' } // match your field
         }
       },
       { $sort: { _id: 1 } }
@@ -39,6 +33,7 @@ exports.getDashboard = async (req, res) => {
       revenue: totalRevenue,
       chartData
     });
+
   } catch (err) {
     console.error('Dashboard Error:', err);
     res.status(500).json({ msg: 'Internal server error' });
