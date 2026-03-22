@@ -52,66 +52,43 @@ const AdminProducts = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSaving(true);
+  e.preventDefault();
+  setSaving(true);
 
-    try {
-      if (editId) {
-        // Update product (JSON payload)
-        const payload = {
-          ...form,
-          price: Number(form.price),
-          oldPrice: Number(form.oldPrice || 0),
-          stock: Number(form.stock)
-        };
-        await API.put(`/products/${editId}`, payload);
-        showToast('Product updated successfully');
-      } else {
-        // Add product (FormData for file)
-        let response;
-        if (imageFile) {
-          const fd = new FormData();
-          fd.append('name', form.name);
-          fd.append('price', Number(form.price));
-          fd.append('oldPrice', Number(form.oldPrice || 0));
-          fd.append('stock', Number(form.stock));
-          fd.append('unit', form.unit);
-          fd.append('category', form.category);
-          fd.append('description', form.description);
-          fd.append('message', form.message);
-          fd.append('image', imageFile); // only if selected
+  try {
+    // Create FormData for both add & edit
+    const fd = new FormData();
+    fd.append('name', form.name);
+    fd.append('price', form.price.toString());
+    fd.append('oldPrice', (form.oldPrice || 0).toString());
+    fd.append('stock', form.stock.toString());
+    fd.append('unit', form.unit);
+    fd.append('category', form.category);
+    fd.append('description', form.description);
+    fd.append('message', form.message);
+    if (imageFile) fd.append('image', imageFile);
 
-          response = await API.post('/products', fd, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          });
-        } else {
-          // Send JSON if no image selected
-          const payload = {
-            ...form,
-            price: Number(form.price),
-            oldPrice: Number(form.oldPrice || 0),
-            stock: Number(form.stock)
-          };
-          response = await API.post('/products', payload);
-        }
-
-        if (response?.status === 200 || response?.status === 201) {
-          showToast('Product added successfully');
-        }
-      }
-
-      resetForm();
-      fetchProducts();
-    } catch (err) {
-      console.error('Product submit error:', err); // Debug log
-      showToast(
-        err.response?.data?.msg || err.message || 'Operation failed',
-        'danger'
-      );
-    } finally {
-      setSaving(false);
+    if (editId) {
+      await API.put(`/products/${editId}`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      showToast('Product updated successfully');
+    } else {
+      await API.post('/products', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      showToast('Product added successfully');
     }
-  };
+
+    resetForm();
+    fetchProducts();
+  } catch (err) {
+    console.error('Product submit error:', err);
+    showToast(err.response?.data?.msg || 'Operation failed', 'danger');
+  } finally {
+    setSaving(false);
+  }
+};
 
   const editProduct = (p) => {
     setForm({ 
