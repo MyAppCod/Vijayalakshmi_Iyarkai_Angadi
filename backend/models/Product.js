@@ -11,11 +11,21 @@ const productSchema = new mongoose.Schema({
 
   price: { type: Number, required: true },
 
+  oldPrice: { type: Number }, // ✅ NEW
+
   stock: { type: Number, default: 0 },
+
+  unit: {                    // ✅ NEW
+    type: String,
+    enum: ['kg', 'liter', 'count'],
+    default: 'count'
+  },
+
+  message: { type: String }, // ✅ NEW
 
   description: String,
 
-  image: String, // URL (Cloudinary or local)
+  image: String,
 
   isActive: {
     type: Boolean,
