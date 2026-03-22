@@ -3,18 +3,33 @@ const Product = require('../models/Product');
 // ➕ Add Product (Admin / Manager)
 exports.createProduct = async (req, res) => {
   try {
+    // ✅ Handle image
     if (req.file) {
-      // Cloudinary → req.file.path is a full https:// URL
-      // Local disk  → req.file.path is uploads/filename, use filename instead
       req.body.image = req.file.path.startsWith('http')
         ? req.file.path
         : `/uploads/${req.file.filename}`;
     }
-    const product = new Product(req.body);
+
+    // ✅ FIX: Convert types properly (VERY IMPORTANT)
+    const productData = {
+      name: req.body.name,
+      category: req.body.category,
+      price: Number(req.body.price),
+      oldPrice: req.body.oldPrice ? Number(req.body.oldPrice) : undefined,
+      stock: Number(req.body.stock),
+      unit: req.body.unit || 'count',
+      message: req.body.message || '',
+      description: req.body.description || '',
+      image: req.body.image
+    };
+
+    const product = new Product(productData);
     const savedProduct = await product.save();
 
-        res.json(savedProduct);
+    res.json(savedProduct);
+
   } catch (err) {
+    console.error("CREATE PRODUCT ERROR:", err); // ✅ Debug log
     res.status(500).json({ msg: err.message });
   }
 };
@@ -51,14 +66,23 @@ exports.getProductById = async (req, res) => {
 // ✏️ Update Product
 exports.updateProduct = async (req, res) => {
   try {
+    const updateData = {
+      ...req.body,
+      price: Number(req.body.price),
+      oldPrice: req.body.oldPrice ? Number(req.body.oldPrice) : undefined,
+      stock: Number(req.body.stock)
+    };
+
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true }
     );
 
     res.json(product);
+
   } catch (err) {
+    console.error("UPDATE PRODUCT ERROR:", err);
     res.status(500).json({ msg: err.message });
   }
 };
