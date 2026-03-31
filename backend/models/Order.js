@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  orderId: { type: String }, // ✅ custom ID
+
+  qrCode: { type: String }, // ✅ QR image path
 
   items: [
     {
