@@ -76,11 +76,11 @@ const AdminOrders = () => {
       ) : (
         <div>
           {filtered.map(order => (
-            <div key={order._id} className="card border-0 shadow-sm mb-3 p-4" style={{ borderRadius: '16px' }}>
+            <div key={order.orderId} className="card border-0 shadow-sm mb-3 p-4" style={{ borderRadius: '16px' }}>
               <div className="row align-items-center">
                 <div className="col-md-5">
                   <p className="text-muted small mb-1">Order ID</p>
-                  <code style={{ fontSize: '12px' }}>{order._id}</code>
+                  <code style={{ fontSize: '12px' }}>{order.orderId}</code>
                   <div className="mt-2">
                     <p className="mb-0 small"><strong>Customer:</strong> {order.user?.name || order.user?.email || 'N/A'}</p>
                     <p className="mb-0 small text-muted">{order.user?.email}</p>
@@ -105,15 +105,35 @@ const AdminOrders = () => {
                     <select
                       className="form-select form-select-sm"
                       value={order.orderStatus}
-                      onChange={e => updateStatus(order._id, e.target.value)}
+                      onChange={e => updateStatus(order.orderId, e.target.value)}
                       style={{ borderRadius: '8px' }}
                     >
                       {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
+                  {/* ✅ ADD THIS PAYMENT STATUS DROPDOWN HERE */}
+                  <div className="mb-2">
+                    <label className="form-label small text-muted mb-1">Payment Status</label>
+                    <select
+                      className="form-select form-select-sm"
+                      value={order.paymentStatus}
+                      onChange={e => {
+                        API.put(`/orders/payment/${order._id}`, {
+                          paymentStatus: e.target.value
+                        }).then(() => loadOrders());
+                      }}
+                      style={{ borderRadius: '8px' }}
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Paid">Paid</option>
+                    </select>
+                  </div>
+
+                  {/* CURRENT STATUS BADGE */}
                   <span className={`badge bg-${statusColors[order.orderStatus] || 'secondary'} px-3`}>
                     Current: {order.orderStatus}
                   </span>
+
                 </div>
               </div>
 

@@ -56,13 +56,13 @@ const MyOrders = () => {
       ) : (
         <div>
           {orders.map(order => (
-            <div key={order._id} className="card border-0 shadow-sm mb-3">
+            <div key={order.orderId} className="card border-0 shadow-sm mb-3">
               <div className="card-body p-4">
                 {/* Order Header */}
                 <div className="d-flex flex-wrap justify-content-between align-items-start mb-3">
                   <div>
                     <p className="text-muted small mb-1">Order ID</p>
-                    <code className="text-dark" style={{ fontSize: '13px' }}>{order._id}</code>
+                    <code className="text-dark" style={{ fontSize: '13px' }}>{order.orderId}</code>
                   </div>
                   <div className="text-end">
                     <span className={`badge bg-${statusColors[order.orderStatus] || 'secondary'} px-3 py-2`}>
@@ -73,6 +73,16 @@ const MyOrders = () => {
                     </p>
                   </div>
                 </div>
+                {order.qrCode && (
+                  <div className="mt-3 text-center">
+                    <p className="small text-muted mb-1">Scan to Pay</p>
+                    <img
+                      src={order.qrCode}
+                      alt="QR Code"
+                      style={{ width: '120px', height: '120px' }}
+                    />
+                  </div>
+                )}
 
                 {/* Order Items */}
                 <div className="mb-3">
