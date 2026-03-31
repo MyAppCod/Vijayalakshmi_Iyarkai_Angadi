@@ -8,7 +8,8 @@ const {
   placeOrder,
   getMyOrders,
   getAllOrders,
-  updateOrderStatus   // ✅ ADD THIS
+  updateOrderStatus,   // ✅ ADD THIS
+  updatePaymentStatus
 } = require('../controllers/orderController');
 
 // ==============================
@@ -31,6 +32,9 @@ router.get('/', auth, role('admin'), getAllOrders);
 
 // ✅ Update order status (NEW)
 router.put('/:id', auth, role('admin'), updateOrderStatus);
+
+router.put('/payment/:id', auth, role('admin'), updatePaymentStatus);
+
 
 
 module.exports = router;
