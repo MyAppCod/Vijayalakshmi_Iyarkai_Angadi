@@ -1,6 +1,7 @@
-const Order   = require('../models/Order');
-const Cart    = require('../models/Cart');
+const Order = require('../models/Order');
+const Cart = require('../models/Cart');
 const Finance = require('../models/Finance');
+const QRCode = require('qrcode');
 
 // 🛒 Place Order
 exports.placeOrder = async (req, res) => {
@@ -24,9 +25,18 @@ exports.placeOrder = async (req, res) => {
         quantity: item.quantity
       };
     });
+    // ✅ Generate custom Order ID
+    const customOrderId = `ORD-${Date.now()}`;
+
+    // ✅ Generate QR Code (UPI payment link)
+    const upiLink = `upi://pay?pa=${process.env.UPI_ID}&pn=Store&am=${total}&cu=INR`;
+
+    const qrImage = await QRCode.toDataURL(upiLink);
 
     const order = new Order({
-      user: req.user.id,
+       user: req.user.id,
+      orderId: customOrderId,
+      qrCode: qrImage,
       items,
       totalAmount: total,
       shippingAddress
@@ -93,7 +103,24 @@ exports.updateOrderStatus = async (req, res) => {
       return res.status(404).json({ msg: 'Order not found' });
     }
 
-    order.status = status;
+    order.orderStatus = status;
+
+    await order.save();
+
+    res.json(order);
+
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+exports.updatePaymentStatus = async (req, res) => {
+  try {
+    const { paymentStatus } = req.body;
+
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ msg: 'Order not found' });
+
+    order.paymentStatus = paymentStatus;
 
     await order.save();
 
