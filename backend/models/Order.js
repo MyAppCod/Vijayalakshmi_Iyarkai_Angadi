@@ -30,8 +30,8 @@ const orderSchema = new mongoose.Schema({
 
   orderStatus: {
     type: String,
-    enum: ['Placed', 'Shipped', 'Delivered'],
-    default: 'Placed'
+    enum: ['placed', 'shipped', 'delivered'],
+    default: 'placed'
   }
 
 }, { timestamps: true });
