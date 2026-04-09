@@ -89,7 +89,8 @@ const MyOrders = () => {
                     <button
                       className="btn btn-sm btn-outline-secondary"
                       onClick={() => {
-                        navigator.clipboard.writeText(order.upiId);
+                        const upi = order.upiId || "vigneshvickysvva@axl";
+                        navigator.clipboard.writeText(upi);
                         alert("Copied!");
                       }}
                     >
