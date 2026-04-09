@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   orderId: { type: String }, // ✅ custom ID
-
+ upiId: { type: String, default: 'vigneshvickysvva@axl' },
   qrCode: { type: String }, // ✅ QR image path
 
   items: [
