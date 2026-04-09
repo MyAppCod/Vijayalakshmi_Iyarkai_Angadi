@@ -31,12 +31,13 @@ exports.placeOrder = async (req, res) => {
     // ✅ Generate QR Code (UPI payment link)
     const upiLink = `upi://pay?pa=${process.env.UPI_ID}&pn=Store&am=${total}&cu=INR`;
 
-    const qrImage = await QRCode.toDataURL(upiLink);
+   const qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
 
     const order = new Order({
        user: req.user.id,
       orderId: customOrderId,
       qrCode: qrImage,
+      upiId: process.env.UPI_ID, // ✅ ADD THIS
       items,
       totalAmount: total,
       shippingAddress
