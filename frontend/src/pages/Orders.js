@@ -31,7 +31,7 @@ const AdminOrders = () => {
 
   const updateStatus = async (id, status) => {
     try {
-      await API.put(`/orders/${id}`, { status });
+      await API.put(`/orders/${id}`, { orderStatus: status });
       showToast('Order status updated');
       loadOrders();
     } catch (err) {
