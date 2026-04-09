@@ -35,19 +35,28 @@ const Checkout = () => {
           <div style={{ fontSize: '4rem', marginBottom: '16px' }}>🎉</div>
           <h3 className="fw-bold text-success mb-2">Order Placed!</h3>
           <p className="text-muted mb-1">Your order has been successfully placed.</p>
-          <code className="text-dark d-block mb-4" style={{ fontSize: '13px' }}>Order ID: {order._id}</code>
+          <code className="text-dark d-block mb-4" style={{ fontSize: '13px' }}>Order ID: {order.orderId}</code>
 
           <div className="card bg-light border-0 p-3 mb-4" style={{ borderRadius: '12px' }}>
             <h6 className="fw-semibold mb-2">💳 Complete Payment</h6>
             <p className="mb-1 text-muted small">UPI ID: <strong className="text-dark">{order.upiId || 'vigneshvickysvva@oksbi'}</strong></p>
+            <button
+              className="btn btn-sm btn-outline-secondary mt-1"
+              onClick={() => {
+                navigator.clipboard.writeText(order.upiId || 'vigneshvickysvva@oksbi');
+                alert("Copied!");
+              }}
+            >
+              Copy UPI ID
+            </button>
             <p className="text-muted small mb-2">Scan the QR code to pay</p>
             <div style={{ width: '180px', height: '180px', margin: '0 auto' }}>
-    <img 
-      src="../PhonePe Scanner.jpeg" 
-      alt="UPI QR Code" 
-      style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '12px' }} 
-    />
-  </div>
+              <img
+                src="../PhonePe_Scanner.jpeg"
+                alt="UPI QR Code"
+                style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '12px' }}
+              />
+            </div>
             <p className="text-warning small mt-2 mb-0">After payment, share screenshot to confirm order.</p>
           </div>
 
