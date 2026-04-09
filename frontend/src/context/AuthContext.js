@@ -11,12 +11,6 @@ export const AuthContext = createContext({
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
-useEffect(() => {
-  if (user?.address) {
-    setAddress(user.address);
-  }
-}, [user]);
-
   // Load user from localStorage on app start
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -39,7 +33,7 @@ useEffect(() => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout }}>
+   <AuthContext.Provider value={{ user, setUser, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
