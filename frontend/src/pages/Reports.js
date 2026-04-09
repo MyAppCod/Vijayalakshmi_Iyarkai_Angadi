@@ -26,7 +26,14 @@ const Reports = () => {
   const [orders, setOrders] = useState([]); // ✅ ADD THIS
   const [search, setSearch] = useState('');
   const [filteredOrders, setFilteredOrders] = useState([]);
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  const [user, setUser] = useState(null);
+
+useEffect(() => {
+  const u = JSON.parse(localStorage.getItem('user') || '{}');
+  setUser(u);
+}, []);
+
   const load = async () => {
     setLoading(true);
     try {
