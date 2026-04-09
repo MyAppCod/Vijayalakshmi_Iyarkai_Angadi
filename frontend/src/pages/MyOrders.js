@@ -96,7 +96,7 @@ const MyOrders = () => {
                       📋 Copy
                     </button>
                     <a
-                      href={`upi://pay?pa=${order.upiId}&pn=Store&am=${order.totalAmount}&cu=INR`}
+                      href={`upi://pay?pa=${order.upiId}&pn=Vignesh&mc=${order.totalAmount}&mode=02&purpose=00`}
                       className="btn btn-success mt-2"
                     >
                       Pay Now
