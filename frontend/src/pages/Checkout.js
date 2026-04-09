@@ -20,7 +20,10 @@ const Checkout = () => {
     setLoading(true);
     try {
       const res = await API.post('/orders', { shippingAddress: address, paymentMethod });
-      setOrder(res.data);
+      setOrder({
+        ...res.data.order,
+        upiId: res.data.upiId
+      });
     } catch (err) {
       setError(err.response?.data?.msg || 'Order failed. Please try again.');
     } finally {
@@ -40,14 +43,11 @@ const Checkout = () => {
           <div className="card bg-light border-0 p-3 mb-4" style={{ borderRadius: '12px' }}>
             <h6 className="fw-semibold mb-2">💳 Complete Payment</h6>
             <p className="mb-1 text-muted small">UPI ID: <strong className="text-dark">{order.upiId || 'vigneshvickysvva@oksbi'}</strong></p>
-            <button
-              className="btn btn-sm btn-outline-secondary mt-1"
-              onClick={() => {
-                navigator.clipboard.writeText(order.upiId || 'vigneshvickysvva@oksbi');
-                alert("Copied!");
-              }}
-            >
-              Copy UPI ID
+            <button onClick={() => {
+              navigator.clipboard.writeText(order.upiId);
+              alert("Copied!");
+            }}>
+              Copy
             </button>
             <p className="text-muted small mb-2">Scan the QR code to pay</p>
             <div style={{ width: '180px', height: '180px', margin: '0 auto' }}>
