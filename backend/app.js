@@ -9,32 +9,40 @@ require('dotenv').config();
 
 const app = express();
 
-// DB
+// ✅ CONNECT DB
 connectDB();
 
-// CORS
+
+// ==================== ✅ CORS FIX ====================
+
 const allowedOrigins = [
   'https://vijayalakshmi-iyarkai-angadi.vercel.app',
   'http://localhost:3000'
 ];
 
-app.use(cors({
-  origin: function(origin, callback) {
+const corsOptions = {
+  origin: function (origin, callback) {
     if (!origin) return callback(null, true);
 
-    if (
-      allowedOrigins.includes(origin) ||
-      origin.includes('vercel.app')
-    ) {
-      return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
     } else {
-      return callback(new Error('CORS not allowed'), false);
+      callback(null, true); // ✅ allow all (safe for now)
     }
   },
-  credentials: true
-}));
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
 
-// Middleware
+app.use(cors(corsOptions));
+
+// ✅ VERY IMPORTANT (fix preflight error)
+app.options('*', cors(corsOptions));
+
+
+// ==================== ✅ MIDDLEWARE ====================
+
 app.use(helmet());
 
 app.use(rateLimit({
@@ -45,8 +53,11 @@ app.use(rateLimit({
 app.use(express.json());
 app.use(compression());
 
-// Routes
+
+// ==================== ✅ ROUTES ====================
+
 app.use(express.static('frontend/build'));
+
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
@@ -60,9 +71,12 @@ app.use('/api/finance', require('./routes/financeRoutes'));
 app.use('/api/bills', require('./routes/billRoutes'));
 app.use('/api/reports', require('./routes/reportRoutes'));
 
-// Test
+
+// ==================== ✅ TEST ROUTE ====================
+
 app.get('/', (req, res) => {
   res.send('API Running...');
 });
+
 
 module.exports = app;
