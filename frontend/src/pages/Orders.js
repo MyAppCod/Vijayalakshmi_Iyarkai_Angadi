@@ -32,15 +32,23 @@ const AdminOrders = () => {
   const updateStatus = async (id, status) => {
     try {
       await API.put(`/orders/${id}`, { orderStatus: status });
+        
+   // ✅ Update UI instantly
+    setOrders(prev =>
+      prev.map(o =>
+        o.orderId === id ? { ...o, orderStatus: status } : o
+      )
+    );
+
       showToast('Order status updated');
-      loadOrders();
+      // loadOrders();
     } catch (err) {
       showToast('Failed to update status', 'danger');
     }
   };
 
   const filtered = orders.filter(o =>
-    o._id.includes(search) ||
+    o.orderId.includes(search) ||
     o.user?.email?.toLowerCase().includes(search.toLowerCase()) ||
     o.user?.name?.toLowerCase().includes(search.toLowerCase())
   );
