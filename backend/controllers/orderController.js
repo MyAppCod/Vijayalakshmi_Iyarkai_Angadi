@@ -29,14 +29,14 @@ exports.placeOrder = async (req, res) => {
     const customOrderId = `ORD-${Date.now()}`;
 
     // ✅ Generate QR Code (UPI payment link)
-    const upiLink = `upi://pay?pa=${process.env.UPI_ID}&pn=Vignesh&mc=${total}mode=02&purpose=00`;
+    const upiLink = `upi://pay?pa=${process.env.UPI_ID}&pn=Vignesh&mc=${total}&mode=02&purpose=00`;
 
 const qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}`;
     const order = new Order({
        user: req.user.id,
       orderId: customOrderId,
       qrCode: qrImage,
-      upiId: process.env.UPI_ID, // ✅ ADD THIS
+       upiId: process.env.UPI_ID, // ✅ ADD THIS
       items,
       totalAmount: total,
       shippingAddress
