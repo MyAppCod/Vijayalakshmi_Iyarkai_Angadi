@@ -35,6 +35,13 @@ router.put('/:id', auth, role('admin'), updateOrderStatus);
 
 router.put('/payment/:id', auth, role('admin'), updatePaymentStatus);
 
-
+router.delete('/orders/:id', async (req, res) => {
+  try {
+    await Order.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Order deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 module.exports = router;
