@@ -10,7 +10,11 @@ const Checkout = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+  useEffect(() => {
+    if (user?.address) {
+      setAddress(user.address);
+    }
+  }, [user]);
   const placeOrder = async () => {
     if (!address.trim()) {
       setError('Please enter a shipping address');

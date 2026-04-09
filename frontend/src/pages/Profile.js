@@ -3,18 +3,20 @@ import API from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import Toast from '../components/Toast';
 
+
 const Profile = () => {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const [form, setForm] = useState({ name: '', phone: '', address: '' });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
 
+
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
-
+  
   useEffect(() => {
     API.get('/auth/me')
       .then(res => setForm({ name: res.data.name || '', phone: res.data.phone || '', address: res.data.address || '' }))
@@ -26,7 +28,12 @@ const Profile = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      await API.put('/users/profile', form);
+      const res = await API.put('/users/profile', form); // ✅ get response
+
+      // ✅ ADD THESE 2 LINES HERE
+      localStorage.setItem('user', JSON.stringify(res.data));
+      setUser(res.data);
+
       showToast('Profile updated successfully!');
     } catch (err) {
       showToast('Failed to update profile', 'danger');
