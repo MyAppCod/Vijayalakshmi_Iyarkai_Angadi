@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
+import { useEffect } from 'react';
 
 // Default values for safety
 export const AuthContext = createContext({
@@ -9,6 +10,12 @@ export const AuthContext = createContext({
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+
+useEffect(() => {
+  if (user?.address) {
+    setAddress(user.address);
+  }
+}, [user]);
 
   // Load user from localStorage on app start
   useEffect(() => {
@@ -32,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
