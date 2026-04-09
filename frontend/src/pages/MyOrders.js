@@ -81,6 +81,26 @@ const MyOrders = () => {
                       alt="QR Code"
                       style={{ width: '120px', height: '120px' }}
                     />
+
+                    {/* ✅ ADD THIS */}
+                    <p className="small mt-2">
+                      UPI ID: <strong>{order.upiId}</strong>
+                    </p>
+                    <button
+                      className="btn btn-sm btn-outline-secondary"
+                      onClick={() => {
+                        navigator.clipboard.writeText(order.upiId);
+                        alert("Copied!");
+                      }}
+                    >
+                      📋 Copy
+                    </button>
+                    <a
+                      href={`upi://pay?pa=${order.upiId}&pn=Store&am=${order.totalAmount}&cu=INR`}
+                      className="btn btn-success mt-2"
+                    >
+                      Pay Now
+                    </a>
                   </div>
                 )}
 
