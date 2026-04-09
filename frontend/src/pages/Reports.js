@@ -36,8 +36,8 @@ const Reports = () => {
         API.get(`/reports/top-products?${params}`),
         API.get(`/reports/expenses-by-category?${params}`),
         API.get('/reports/monthly-trend'),
-        // API.get('/orders') // ✅ FETCH ORDERS
-        API.get(`/orders?from=${from}&to=${to}`)
+        API.get('/orders') // ✅ FETCH ORDERS
+        // API.get(`/orders?from=${from}&to=${to}`)
       ]);
       setSummary(s.data);
       setTop(tp.data);
