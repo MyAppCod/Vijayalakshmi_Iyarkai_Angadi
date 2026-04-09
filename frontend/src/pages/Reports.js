@@ -24,7 +24,9 @@ const Reports = () => {
   const [to, setTo] = useState(today());
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState([]); // ✅ ADD THIS
-  const user = JSON.parse(localStorage.getItem('user')); // ✅ ADD THIS
+  const [search, setSearch] = useState('');
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
   const load = async () => {
     setLoading(true);
     try {
@@ -34,7 +36,8 @@ const Reports = () => {
         API.get(`/reports/top-products?${params}`),
         API.get(`/reports/expenses-by-category?${params}`),
         API.get('/reports/monthly-trend'),
-        API.get('/orders') // ✅ FETCH ORDERS
+        // API.get('/orders') // ✅ FETCH ORDERS
+        API.get(`/orders?from=${from}&to=${to}`)
       ]);
       setSummary(s.data);
       setTop(tp.data);
@@ -46,6 +49,19 @@ const Reports = () => {
   };
 
   useEffect(() => { load(); }, [from, to]);
+  useEffect(() => {
+    let data = [...orders];
+
+    // 🔍 Search filter
+    if (search) {
+      data = data.filter(o =>
+        o.user?.name?.toLowerCase().includes(search.toLowerCase()) ||
+        o.user?.phone?.includes(search)
+      );
+    }
+
+    setFilteredOrders(data);
+  }, [search, orders]);
 
   // ✅ DELETE
   const handleDelete = async (id) => {
@@ -61,25 +77,27 @@ const Reports = () => {
 
   // ✅ EXPORT
   const exportToExcel = () => {
-    const data = orders.map(o => ({
-      Date: new Date(o.createdAt).toLocaleDateString(),
-      Customer: o.user?.name,
-      Phone: o.user?.phone,
-      Type: 'Income',
-      Category: 'Sales',
-      Source: 'Online',
-      Description: `Order #${o.orderId}`,
-      Amount: o.totalAmount
-    }));
+  const data = filteredOrders.map(o => ({
+    Date: new Date(o.createdAt).toLocaleDateString(),
+    Customer: o.user?.name || 'Walk-in',
+    Phone: o.user?.phone || '-',
+    Source: o.source === 'pos' ? 'POS' : 'Online',
+    Type: 'Income',
+    Category: 'Sales',
+    Description: `Order #${o.orderId}`,
+    Amount: o.totalAmount
+  }));
 
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Report');
+  const ws = XLSX.utils.json_to_sheet(data);
 
-    const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([buffer], { type: 'application/octet-stream' });
-    saveAs(blob, 'report.xlsx');
-  };
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Report');
+
+  const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([buffer], { type: 'application/octet-stream' });
+
+  saveAs(blob, `report_${from}_to_${to}.xlsx`);
+};
   const PRESET = [
     { label: 'Today', from: today(), to: today() },
     { label: 'This Month', from: monthStart(), to: today() },
@@ -234,7 +252,13 @@ const Reports = () => {
               </div>
             </div>
           </div>
-
+          <input
+            type="text"
+            placeholder="Search by name or phone..."
+            className="form-control mb-3"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
           {/* ✅ NEW REPORT TABLE */}
           <div className="card mt-4 p-3">
             <h6 className="fw-bold mb-3">📋 Orders Report</h6>
@@ -246,6 +270,7 @@ const Reports = () => {
                     <th>Date</th>
                     <th>Customer</th>
                     <th>Phone</th>
+                    <th>Source</th>
                     <th>Description</th>
                     <th>Amount</th>
                     {user?.isAdmin && <th>Actions</th>}
@@ -253,11 +278,18 @@ const Reports = () => {
                 </thead>
 
                 <tbody>
-                  {orders.map(order => (
-                    <tr key={order._id}>
+                  {filteredOrders.length === 0 ? (
+    <tr>
+      <td colSpan="7" className="text-center">
+        No records found
+      </td>
+    </tr>
+  ) :(filteredOrders.map(order => (
+                    <tr key={order.orderId}>
                       <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                       <td>{order.user?.name || 'N/A'}</td>
                       <td>{order.user?.phone || 'N/A'}</td>
+                       <td>{order.source === 'pos' ? 'POS' : 'Online'}</td>
                       <td>Order #{order.orderId}</td>
                       <td>₹{order.totalAmount}</td>
 
@@ -265,14 +297,14 @@ const Reports = () => {
                         <td>
                           <button
                             className="btn btn-sm btn-danger"
-                            onClick={() => handleDelete(order._id)}
+                            onClick={() => handleDelete(order.orderId)}
                           >
                             Delete
                           </button>
                         </td>
                       )}
                     </tr>
-                  ))}
+                  )))}
                 </tbody>
 
               </table>
