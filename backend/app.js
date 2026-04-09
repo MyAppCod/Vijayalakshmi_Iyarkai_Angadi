@@ -13,33 +13,23 @@ const app = express();
 connectDB();
 
 
-// ==================== ✅ CORS FIX ====================
+// ==================== ✅ ADD HERE ====================
 
-const allowedOrigins = [
-  'https://vijayalakshmi-iyarkai-angadi.vercel.app',
-  'http://localhost:3000'
-];
+const cors = require('cors');
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
+app.use(cors());
 
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(null, true); // ✅ allow all (safe for now)
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 
-app.use(cors(corsOptions));
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
 
-// ✅ VERY IMPORTANT (fix preflight error)
-app.options('*', cors(corsOptions));
-
+  next();
+});
 
 // ==================== ✅ MIDDLEWARE ====================
 
