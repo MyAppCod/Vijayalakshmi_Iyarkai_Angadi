@@ -24,7 +24,7 @@ const Reports = () => {
   const [to, setTo] = useState(today());
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState([]); // ✅ ADD THIS
-const user = JSON.parse(localStorage.getItem('user')); // ✅ ADD THIS
+  const user = JSON.parse(localStorage.getItem('user')); // ✅ ADD THIS
   const load = async () => {
     setLoading(true);
     try {
@@ -47,7 +47,7 @@ const user = JSON.parse(localStorage.getItem('user')); // ✅ ADD THIS
 
   useEffect(() => { load(); }, [from, to]);
 
-   // ✅ DELETE
+  // ✅ DELETE
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this record?')) return;
 
@@ -59,7 +59,7 @@ const user = JSON.parse(localStorage.getItem('user')); // ✅ ADD THIS
     }
   };
 
-    // ✅ EXPORT
+  // ✅ EXPORT
   const exportToExcel = () => {
     const data = orders.map(o => ({
       Date: new Date(o.createdAt).toLocaleDateString(),
@@ -72,7 +72,7 @@ const user = JSON.parse(localStorage.getItem('user')); // ✅ ADD THIS
       Amount: o.totalAmount
     }));
 
-     const ws = XLSX.utils.json_to_sheet(data);
+    const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Report');
 
@@ -88,36 +88,36 @@ const user = JSON.parse(localStorage.getItem('user')); // ✅ ADD THIS
 
   return (
     <AdminLayout>
-       {/* EXPORT BUTTON */}
+      {/* EXPORT BUTTON */}
       <button onClick={exportToExcel} className="btn btn-success mb-3">
         Export Excel
       </button>
 
-     {loading ? (
-  <div className="text-center py-5">
-    <div className="spinner-border text-success"></div>
-  </div>
-) : (
-  <>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h4 className="fw-bold mb-0">Reports</h4>
-          <p className="text-muted small mb-0">Business performance overview</p>
+      {loading ? (
+        <div className="text-center py-5">
+          <div className="spinner-border text-success"></div>
         </div>
-      </div>
+      ) : (
+        <>
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h4 className="fw-bold mb-0">Reports</h4>
+              <p className="text-muted small mb-0">Business performance overview</p>
+            </div>
+          </div>
 
-      {/* Date Range */}
-      <div className="d-flex flex-wrap gap-2 align-items-center mb-4">
-        {PRESET.map(p => (
-          <button key={p.label} className="btn btn-sm btn-outline-success" style={{ borderRadius: '20px' }}
-            onClick={() => { setFrom(p.from); setTo(p.to); }}>{p.label}</button>
-        ))}
-        <input type="date" className="form-control form-control-sm" style={{ maxWidth: '150px' }} value={from} onChange={e => setFrom(e.target.value)} />
-        <span className="text-muted small">to</span>
-        <input type="date" className="form-control form-control-sm" style={{ maxWidth: '150px' }} value={to} onChange={e => setTo(e.target.value)} />
-      </div>
+          {/* Date Range */}
+          <div className="d-flex flex-wrap gap-2 align-items-center mb-4">
+            {PRESET.map(p => (
+              <button key={p.label} className="btn btn-sm btn-outline-success" style={{ borderRadius: '20px' }}
+                onClick={() => { setFrom(p.from); setTo(p.to); }}>{p.label}</button>
+            ))}
+            <input type="date" className="form-control form-control-sm" style={{ maxWidth: '150px' }} value={from} onChange={e => setFrom(e.target.value)} />
+            <span className="text-muted small">to</span>
+            <input type="date" className="form-control form-control-sm" style={{ maxWidth: '150px' }} value={to} onChange={e => setTo(e.target.value)} />
+          </div>
 
-   
+
           {/* Summary Cards */}
           <div className="row g-3 mb-4">
             {[
@@ -234,8 +234,8 @@ const user = JSON.parse(localStorage.getItem('user')); // ✅ ADD THIS
               </div>
             </div>
           </div>
-       
-       {/* ✅ NEW REPORT TABLE */}
+
+          {/* ✅ NEW REPORT TABLE */}
           <div className="card mt-4 p-3">
             <h6 className="fw-bold mb-3">📋 Orders Report</h6>
 
