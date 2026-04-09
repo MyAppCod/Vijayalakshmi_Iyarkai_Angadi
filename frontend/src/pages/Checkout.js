@@ -35,7 +35,7 @@ const Checkout = () => {
           <div style={{ fontSize: '4rem', marginBottom: '16px' }}>🎉</div>
           <h3 className="fw-bold text-success mb-2">Order Placed!</h3>
           <p className="text-muted mb-1">Your order has been successfully placed.</p>
-          <code className="text-dark d-block mb-4" style={{ fontSize: '13px' }}>Order ID: {order.orderId}</code>
+          <code className="text-dark d-block mb-4" style={{ fontSize: '13px' }}>Order ID: {order.orderId || order._id}</code>
 
           <div className="card bg-light border-0 p-3 mb-4" style={{ borderRadius: '12px' }}>
             <h6 className="fw-semibold mb-2">💳 Complete Payment</h6>
@@ -52,7 +52,7 @@ const Checkout = () => {
             <p className="text-muted small mb-2">Scan the QR code to pay</p>
             <div style={{ width: '180px', height: '180px', margin: '0 auto' }}>
               <img
-                src="../PhonePe_Scanner.jpeg"
+                src={order.qrCode || "../../public/phonepe-qr.jpeg"}
                 alt="UPI QR Code"
                 style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '12px' }}
               />
