@@ -12,24 +12,12 @@ const Checkout = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // ✅ Fetch address from profile
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await API.get('/users/profile');
-        setAddress(res.data.address || '');
-      } catch (err) {
-        console.log(err);
-        setError('Failed to load profile');
-      } finally {
-        setLoading(false);
-      }
-    };
+  setAddress(user?.address || '');
+  setLoading(false);
+}, [user]);
 
-    fetchProfile();
-  }, []);
-
-  // ✅ Place order
+// ✅ Place order
   const placeOrder = async () => {
     if (!address || !address.trim()) {
       setError('⚠️ Please add your shipping address in profile before placing order');
