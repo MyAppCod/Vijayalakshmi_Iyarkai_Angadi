@@ -111,7 +111,7 @@ const About = () => {
                 <h5 className="fw-bold" style={{ color: '#1b5e20' }}>Farm to Table</h5>
                 <p className="text-muted small mb-0">Every product travels directly from our partner farms to your doorstep — no warehouses, no compromises.</p>
               </div>
-              <div className="card border-0 shadow-sm p-3" style={{ borderRadius: '14px', background: '#fff', position: 'absolute', bottom: 0, right: '5%', width: '180px' }}>
+              <div className="card border-0 shadow-sm p-3" style={{ borderRadius: '14px', background: '#fff', position: 'absolute', bottom: '10px', right: '5%', width: '180px' }}>
                 <div className="d-flex align-items-center gap-2">
                   <span style={{ fontSize: '1.8rem' }}>✅</span>
                   <div>
