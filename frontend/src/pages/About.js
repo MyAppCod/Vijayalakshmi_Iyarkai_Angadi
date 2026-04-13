@@ -24,14 +24,14 @@ const VALUES = [
 ];
 
 const MILESTONES = [
-  { year: '2018', label: 'Founded', desc: 'Started with 3 farmers and a belief in real food' },
-  { year: '2019', label: '50+ Products', desc: 'Expanded to include millets, dairy, and traditional rice varieties' },
-  { year: '2021', label: 'Online Store', desc: 'Launched our digital platform to reach customers across the region' },
-  { year: '2024', label: '500+ Families', desc: 'Now serving over 500 families with fresh organic produce every month' }
+  { year: '1976', label: 'Founded', desc: 'Started with 3 farmers and a belief in real food' },
+  { year: '2000', label: '10+ Products', desc: 'Expanded to include millets, dairy, and traditional rice varieties' },
+  { year: '2024', label: 'Online Store', desc: 'Launched our digital platform to reach customers across the region' },
+  { year: '2026', label: '50+ Families', desc: 'Now serving over 500 families with fresh organic produce every month' }
 ];
 
 const TEAM = [
-  { name: 'Vignesh Selvaraj', role: 'Founder & CEO', icon: '👩‍🌾', desc: 'Third-generation farmer who turned her family\'s land into a movement.' },
+  { name: 'Vignesh Selvaraj', role: 'Founder & CEO', icon: '🤵🏻', desc: 'Third-generation farmer who turned her family\'s land into a movement.' },
   // { name: 'Ravi Sundaram', role: 'Head of Sourcing', icon: '👨‍🌾', desc: 'Travels to farms personally to ensure quality and ethical practices.' },
   // { name: 'Priya Menon', role: 'Nutrition Advisor', icon: '👩‍⚕️', desc: 'Certified nutritionist helping customers make the right food choices.' }
 ];
@@ -120,7 +120,7 @@ const About = () => {
                   </div>
                 </div>
               </div>
-              <div className="card border-0 shadow-sm p-3" style={{ borderRadius: '14px', background: '#fff8e1', position: 'absolute', bottom: '30px', left: '0', width: '170px' }}>
+              <div className="card border-0 shadow-sm p-3" style={{ borderRadius: '14px', background: '#fff8e1', position: 'absolute', top: '30px', left: '0', width: '170px' }}>
                 <div className="d-flex align-items-center gap-2">
                   <span style={{ fontSize: '1.8rem' }}>🤝</span>
                   <div>
